@@ -1,0 +1,18 @@
+name: Basic
+on: push
+
+jobs:
+  # <----------------- BASIC WITHOUT PR ------------------>
+  basic:
+    name: Basic
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Basic Test
+        uses: ./
+        with:
+          commit-email: sean@erzz.com
+          plan-files: test-data/
+          output-filename: test-data/plan.png
+

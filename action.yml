@@ -35,15 +35,16 @@ inputs:
   token:
     required: false
     description: "A github token to add PR comment. Replace with a PAT if required"
-    default: "${{ secrets.GITHUB_TOKEN }}"
+    default: ${{ github.token }}
 runs:
   using: composite
   steps:
-    - name: Install inframap
+    - name: Install inframap & Graphviz
       shell: bash
       run: |
         curl -L "https://github.com/cycloidio/inframap/releases/download/v${{ inputs.inframap-version }}/inframap-linux-amd64.tar.gz" | tar -xz \
           && mv inframap-linux-amd64 inframap
+        sudo apt install graphviz
 
     - name: Generate diagram
       shell: bash
@@ -60,6 +61,6 @@ runs:
         git config user.email "${{ inputs.commit-email }}"
         git checkout ${GITHUB_HEAD_REF}
         git add ${{ inputs.output-filename }}
-        git commit -m ${{ inputs.commit-message }}
-        git push origin HEAD:${GITHUB_HEAD_REF}
+        git commit -m "${{ inputs.commit-message }}"
+        git push
         echo "Committed diagram"
