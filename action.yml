@@ -1,0 +1,65 @@
+name: Inframap
+author: Sean Erswell-Liljefelt
+description: Automatically generate diagrams of your Terraform plan. Commits back to repository and optionally adds to PR comment
+branding:
+  color: purple
+  icon: layers
+inputs:
+  commit-email:
+    required: true
+    description: "The email address to use for the commit"
+  plan-files:
+    description: "Path to a directory or specific file containing your plan file(s)"
+    required: false
+    default: "terraform/"
+  inframap-flags:
+    required: false
+    description: "Pass any additional inframap flags here"
+    default: ""
+  inframap-version:
+    required: false
+    description: "The version of inframap to use"
+    default: "0.6.7"
+  output-filename:
+    required: false
+    description: "Override the path & name of the PNG file created"
+    default: "plan.png"
+  commit-message:
+    required: false
+    description: "Override the commit message used"
+    default: "docs(infra): add generated diagrams"
+  pr-comment:
+    required: false
+    description: "If set to true, will post as comment to PR"
+    default: "true"
+  token:
+    required: false
+    description: "A github token to add PR comment. Replace with a PAT if required"
+    default: "${{ secrets.GITHUB_TOKEN }}"
+runs:
+  using: composite
+  steps:
+    - name: Install inframap
+      shell: bash
+      run: |
+        curl -L "https://github.com/cycloidio/inframap/releases/download/v${{ inputs.inframap-version }}/inframap-linux-amd64.tar.gz" | tar -xz \
+          && mv inframap-linux-amd64 inframap
+
+    - name: Generate diagram
+      shell: bash
+      run: |
+        ./inframap generate ${{ inputs.plan-files}} ${{ inputs.inframap-flags }} | dot -Tpng > ${{ inputs.output-filename }}
+
+    - name: Commit diagram
+      shell: bash
+      run: |
+        if [[ ! $(git status --porcelain) ]]; then
+          exit 0
+        fi
+        git config user.name "${GITHUB_ACTOR}"
+        git config user.email "${{ inputs.commit-email }}"
+        git checkout ${GITHUB_HEAD_REF}
+        git add ${{ inputs.output-filename }}
+        git commit -m ${{ inputs.commit-message }}
+        git push origin HEAD:${GITHUB_HEAD_REF}
+        echo "Committed diagram"
