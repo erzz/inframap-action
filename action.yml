@@ -5,9 +5,9 @@ branding:
   color: purple
   icon: layers
 inputs:
-  commit-email:
-    required: true
-    description: "The email address to use for the commit"
+  # commit-email:
+  #   required: true
+  #   description: "The email address to use for the commit"
   plan-files:
     description: "Path to a directory or specific file containing your plan file(s)"
     required: false
@@ -51,16 +51,21 @@ runs:
       run: |
         ./inframap generate ${{ inputs.plan-files}} ${{ inputs.inframap-flags }} | dot -Tpng > ${{ inputs.output-filename }}
 
-    - name: Commit diagram
-      shell: bash
-      run: |
-        if [[ ! $(git status --porcelain) ]]; then
-          exit 0
-        fi
-        git config user.name "${GITHUB_ACTOR}"
-        git config user.email "${{ inputs.commit-email }}"
-        git checkout ${GITHUB_HEAD_REF}
-        git add ${{ inputs.output-filename }}
-        git commit -m "${{ inputs.commit-message }}"
-        git push
-        echo "Committed diagram"
+    - name: Git Auto Commit
+      uses: stefanzweifel/git-auto-commit-action@v4.15.4
+      with:
+        commit_message: ${{ inputs.commit-message }}
+        file_pattern: ${{ inputs.output-filename }}
+
+    - name: Add PR comment
+      if: ${{ inputs.pr-comment == 'true' }}
+      uses: jdvr/action-add-comment@main
+      env:
+        GITHUB_TOKEN: "${{ inputs.token }}"
+      with:
+        comment: |
+          ## Summary of Terraform plan
+
+          ![Terraform plan](/$GITHUB_REPOSITORY/blob/$GITHUB_HEAD_REF/${{ inputs.output-filename }}?raw=true)
+
+          <sub>committed to ${{ inputs.output-filename }}</sub>
