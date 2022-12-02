@@ -46,31 +46,39 @@ runs:
   steps:
     - name: Check for terraform updates
       id: diff
+      shell: bash
       if: ${{ inputs.always-run != 'true' }}
-      uses: softprops/diffset@v1
-      with:
-        base: ${{ github.event.repository.default_branch }}
-        tf_files: |
-          ${{ inputs.plan-files }}/*.tf
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
+      run: |
+        git fetch origin ${{ github.event.repository.default_branch }}:${{ github.event.repository.default_branch }}
+
+        if git diff --name-status ${{ github.event.repository.default_branch }} | grep -E '.*\.tf$'; then 
+          export UPDATES=true
+          echo "Found updated terraform files:"
+        else
+          export UPDATES=false
+          echo "No updated terraform files found, Skipping all remaining steps..."
+        fi
+        echo "updates=$UPDATES" >> $GITHUB_OUTPUT
 
     - name: Install inframap & Graphviz
       shell: bash
-      if: ${{ steps.diff.outputs.tf_files || inputs.always-run == 'true' }}
+      if: ${{ steps.diff.outputs.updates == 'true' || inputs.always-run == 'true' }}
       run: |
         curl -L "https://github.com/cycloidio/inframap/releases/download/v${{ inputs.inframap-version }}/inframap-linux-amd64.tar.gz" | tar -xz \
           && mv inframap-linux-amd64 inframap
         sudo apt install graphviz
 
     - name: Generate diagram
-      if: ${{ steps.diff.outputs.tf_files || inputs.always-run == 'true' }}
+      if: ${{ steps.diff.outputs.updates == 'true' || inputs.always-run == 'true' }}
       shell: bash
       run: |
+        if [ ! -d $(dirname ${{ inputs.output-filename }}) ]; then
+          mkdir -p $(dirname ${{ inputs.output-filename }})
+        fi
         ./inframap generate ${{ inputs.plan-files}} ${{ inputs.inframap-flags }} | dot -Tpng > ${{ inputs.output-filename }}
 
     - name: Git Auto Commit
-      if: ${{ steps.diff.outputs.tf_files || inputs.always-run == 'true' }}
+      if: ${{ steps.diff.outputs.updates == 'true' || inputs.always-run == 'true' }}
       uses: stefanzweifel/git-auto-commit-action@v4.15.4
       with:
         commit_user_email: ${{ inputs.commit-email }}
@@ -78,7 +86,7 @@ runs:
         file_pattern: ${{ inputs.output-filename }}
 
     - name: Add PR comment
-      if: ${{ inputs.pr-comment == 'true' && steps.diff.outputs.tf_files }} || ${{ inputs.pr-comment == 'true' && inputs.always-run == 'true' }}
+      if: ${{ steps.diff.outputs.updates == 'true' && inputs.pr-comment == 'true' }}
       uses: jdvr/action-add-comment@main
       env:
         GITHUB_TOKEN: "${{ inputs.token }}"
