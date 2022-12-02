@@ -1,4 +1,4 @@
-name: Inframap
+name: inframap-action
 author: Sean Erswell-Liljefelt
 description: Automatically generate diagrams of your Terraform plan. Commits back to repository and optionally adds to PR comment
 branding:
