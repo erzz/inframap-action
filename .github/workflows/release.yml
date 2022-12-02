@@ -1,0 +1,11 @@
+name: Release
+on: workflow_dispatch
+
+jobs:
+  # <--------------- RUN SEMANTIC RELEASE ---------------->
+  release:
+    uses: erzz/workflows/.github/workflows/semantic-release.yml@main
+    with:
+      create-floating-tag: true
+    secrets:
+      token: ${{ secrets.RELEASE_TOKEN }}
