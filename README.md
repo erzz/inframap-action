@@ -47,7 +47,7 @@ jobs:
 
 ## Create diagram, commit to repository and add to PR
 
-Assuming your terraform files exist in a directory called `terraform/` and your file should be committed to `docs/plan.png`: and you want to add the diagram to your PR:
+Assuming your terraform files exist in a directory called `terraform/` and your file should be committed to `docs/plan.png` and you want to add the diagram to your PR:
 
 ```yaml
 name: Docs
@@ -115,7 +115,7 @@ jobs:
 
 # What do you mean by "simplified"?
 
-The beauty of inframap is that it will simplify your terraform plan or state to a diagram that is easy to understand compared to super complex and detailed views provided by `terraform graph` and other tools.
+The beauty of inframap is that it will simplify your terraform plan or state to a diagram that is easy to understand compared to super complex and detailed views provided by `terraform graph` and other tools. It's almost comparable to a high level view of your infrastructure or a C4 model "container" view.
 
 Various types of resources will be grouped together, some even skipped, so that the results is a simplified view of your infrastructure.
 
