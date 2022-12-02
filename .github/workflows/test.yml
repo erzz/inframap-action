@@ -14,5 +14,5 @@ jobs:
         with:
           plan-files: test-data/
           inframap-flags: --clean=true --external-nodes=true --connections=false --show-icons=true
-          output-filename: test-data/plan.png
+          output-filename: docs/plan.png
           pr-comment: true

@@ -6,7 +6,7 @@ branding:
   icon: layers
 inputs:
   plan-files:
-    description: "Path to a directory or specific file containing your plan file(s)"
+    description: "Path to a directory or specific file containing your terraform plan file(s) or state"
     required: false
     default: "terraform/"
   inframap-flags:
@@ -20,7 +20,7 @@ inputs:
   output-filename:
     required: false
     description: "Override the path & name of the PNG file created"
-    default: "plan.png"
+    default: "docs/plan.png"
   commit-email:
     required: true
     description: "The email address to use for the commit (defaults to github bot)"
@@ -31,7 +31,7 @@ inputs:
     default: "docs(infra): add generated diagrams"
   pr-comment:
     required: false
-    description: "If set to true, will post as comment to PR"
+    description: "If set to true, will post diagram as comment to PR"
     default: "true"
   always-run:
     required: false
