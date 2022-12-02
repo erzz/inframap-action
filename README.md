@@ -13,6 +13,15 @@ A github action that will:
 
 # Usage
 
+## A gotcha before you start!
+
+If for any reason you or your organisation are limiting permissions in your workflow file, you will need to add the following permissions to your workflow file so that the action can commit the diagram to your branch:
+
+```yaml
+permissions:
+  contents: write
+```
+
 ## Create diagram and commit back to repository
 
 Assuming your terraform files exist in a directory called `terraform/` and your file should be committed to `docs/plan.png`:
