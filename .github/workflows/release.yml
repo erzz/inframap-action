@@ -8,4 +8,4 @@ jobs:
     with:
       create-floating-tag: true
     secrets:
-      token: ${{ github.token }}
+      token: ${{ secrets.RELEASE_TOKEN }}
