@@ -1,0 +1,71 @@
+{
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "releaseRules": [{ "type": "chore", "release": "patch" }]
+        }
+      ],
+      [
+        "@semantic-release/release-notes-generator",
+        {
+          "preset": "conventionalcommits",
+          "presetConfig": {
+            "issuePrefixes": ["[A-Za-z]{2,4}-[0-9]{1,5}"],
+            "issueUrlFormat": "https://jira.digital.ingka.com/browse/{{prefix}}{{id}}",
+            "types": [
+              {
+                "type": "feat",
+                "section": ":sparkles: New Features",
+                "hidden": false
+              },
+              {
+                "type": "fix",
+                "section": ":bug: Bug Fixes",
+                "hidden": false
+              },
+              {
+                "type": "docs",
+                "section": ":memo: Documentation",
+                "hidden": true
+              },
+              {
+                "type": "refactor",
+                "section": ":zap: Refactor",
+                "hidden": true
+              },
+              {
+                "type": "perf",
+                "section": ":fast_forward: Performance",
+                "hidden": false
+              },
+              {
+                "type": "test",
+                "section": ":white_check_mark: Tests",
+                "hidden": true
+              },
+              {
+                "type": "ci",
+                "section": ":repeat: CI",
+                "hidden": true
+              },
+              {
+                "type": "chore",
+                "section": ":package: Maintenance",
+                "hidden": false
+              }
+            ]
+          }
+        }
+      ],
+      "@semantic-release/changelog",
+      "@semantic-release/github",
+      [
+        "@semantic-release/git",
+        {
+          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+        }
+      ]
+    ],
+    "branches": ["main"]
+  }

@@ -1,0 +1,18 @@
+name: Tests
+on: pull_request
+
+jobs:
+  push:
+    name: PR event
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create & commit diagram with PR
+        uses: ./
+        with:
+          plan-files: test-data/
+          inframap-flags: --clean=true --external-nodes=true --connections=false --show-icons=true
+          output-filename: docs/plan.png
+          pr-comment: true

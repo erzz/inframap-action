@@ -1,0 +1,91 @@
+name: Inframap
+author: Sean Erswell-Liljefelt
+description: Automatically generate diagrams of your Terraform plan. Commits back to repository and optionally adds to PR comment
+branding:
+  color: purple
+  icon: layers
+inputs:
+  plan-files:
+    description: "Path to a directory or specific file containing your terraform plan file(s) or state"
+    required: false
+    default: "terraform/"
+  inframap-flags:
+    required: false
+    description: "Pass any additional inframap flags here"
+    default: ""
+  inframap-version:
+    required: false
+    description: "The version of inframap to use"
+    default: "0.6.7"
+  output-filename:
+    required: false
+    description: "Override the path & name of the PNG file created"
+    default: "docs/plan.png"
+  commit-email:
+    required: true
+    description: "The email address to use for the commit (defaults to github bot)"
+    default: ""
+  commit-message:
+    required: false
+    description: "Override the commit message used"
+    default: "docs(infra): add generated diagrams"
+  pr-comment:
+    required: false
+    description: "If set to true, will post diagram as comment to PR"
+    default: "true"
+  always-run:
+    required: false
+    description: "Normal behaviour is to not run if tf files are not updated. To force creation every time, set to true"
+    default: "false"
+  token:
+    required: false
+    description: "A github token to add PR comment. Replace with a PAT if required"
+    default: ${{ github.token }}
+runs:
+  using: composite
+  steps:
+    - name: Check for terraform updates
+      id: diff
+      if: ${{ inputs.always-run != 'true' }}
+      uses: softprops/diffset@v1
+      with:
+        base: ${{ github.event.repository.default_branch }}
+        tf_files: |
+          ${{ inputs.plan-files }}/*.tf
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+
+    - name: Install inframap & Graphviz
+      shell: bash
+      if: ${{ steps.diff.outputs.tf_files || inputs.always-run == 'true' }}
+      run: |
+        curl -L "https://github.com/cycloidio/inframap/releases/download/v${{ inputs.inframap-version }}/inframap-linux-amd64.tar.gz" | tar -xz \
+          && mv inframap-linux-amd64 inframap
+        sudo apt install graphviz
+
+    - name: Generate diagram
+      if: ${{ steps.diff.outputs.tf_files || inputs.always-run == 'true' }}
+      shell: bash
+      run: |
+        ./inframap generate ${{ inputs.plan-files}} ${{ inputs.inframap-flags }} | dot -Tpng > ${{ inputs.output-filename }}
+
+    - name: Git Auto Commit
+      if: ${{ steps.diff.outputs.tf_files || inputs.always-run == 'true' }}
+      uses: stefanzweifel/git-auto-commit-action@v4.15.4
+      with:
+        commit_user_email: ${{ inputs.commit-email }}
+        commit_message: ${{ inputs.commit-message }}
+        file_pattern: ${{ inputs.output-filename }}
+
+    - name: Add PR comment
+      if: ${{ inputs.pr-comment == 'true' && steps.diff.outputs.tf_files }} || ${{ inputs.pr-comment == 'true' && inputs.always-run == 'true' }}
+      uses: jdvr/action-add-comment@main
+      env:
+        GITHUB_TOKEN: "${{ inputs.token }}"
+      with:
+        comment: |
+          ## Summary of Terraform plan
+
+          ![Terraform plan](/$GITHUB_REPOSITORY/blob/$GITHUB_HEAD_REF/${{ inputs.output-filename }}?raw=true)
+
+          <sub>committed to ${{ inputs.output-filename }}</sub>
