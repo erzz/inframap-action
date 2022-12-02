@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/erzz/inframap-action/compare/v1.0.0...v1.0.1) (2022-12-02)
+
+
+### :bug: Bug Fixes
+
+* pr comment was created even when no files changed ([8d5ba13](https://github.com/erzz/inframap-action/commit/8d5ba13b248f22b44a89f6319a0fb2a00eacb9fa))
+
 ## 1.0.0 (2022-12-02)
 
 
