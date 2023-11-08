@@ -79,7 +79,7 @@ runs:
 
     - name: Git Auto Commit
       if: ${{ steps.diff.outputs.updates == 'true' || inputs.always-run == 'true' }}
-      uses: stefanzweifel/git-auto-commit-action@v4.16.0
+      uses: stefanzweifel/git-auto-commit-action@v5.0.0
       with:
         commit_user_email: ${{ inputs.commit-email }}
         commit_message: ${{ inputs.commit-message }}
