@@ -7,5 +7,5 @@ jobs:
     uses: erzz/toolbox/.github/workflows/semantic-release.yml@main
     with:
       create-floating-tag: true
-#    secrets:
-#     token: ${{ secrets.RELEASE_TOKEN }}
+    secrets:
+     token: ${{ secrets.RELEASE_TOKEN }}
