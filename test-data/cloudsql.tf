@@ -1,4 +1,4 @@
-# Create Cloud SQL Postgres resources
+# Create Cloud SQL Postgres resources 
 # ============================================================================
 resource "google_sql_database_instance" "master" {
   project          = var.project_id
