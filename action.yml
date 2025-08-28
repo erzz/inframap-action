@@ -16,7 +16,7 @@ inputs:
   inframap-version:
     required: false
     description: "The version of inframap to use"
-    default: "0.6.7"
+    default: "0.8.0"
   output-filename:
     required: false
     description: "Override the path & name of the PNG file created"
